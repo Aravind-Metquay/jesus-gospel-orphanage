@@ -1,0 +1,63 @@
+---
+import { impact } from "../data/site";
+
+/* No verified numbers yet? Then no section at all. A vague claim about
+   "many children in need" is worse than staying quiet until the count is real. */
+const stats = impact.stats.filter((s) => s.value?.trim());
+---
+
+{
+  stats.length > 0 && (
+    <section class="section section--cream" id="impact">
+      <div class="wrap">
+        <div class="section__head">
+          <span class="eyebrow">{impact.eyebrow}</span>
+          <h2>{impact.heading}</h2>
+          <p>{impact.sub}</p>
+        </div>
+
+        <ul class="stats">
+          {stats.map((stat) => (
+            <li>
+              <span class="stats__value">{stat.value}</span>
+              <span class="stats__label">{stat.label}</span>
+              {stat.note && <span class="stats__note">{stat.note}</span>}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+  )
+}
+
+<style>
+  .stats {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1rem, 3vw, 2rem);
+    grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr));
+  }
+
+  .stats li {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: #fff;
+    border-top: 3px solid var(--gold);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+  }
+
+  .stats__value {
+    font-family: var(--serif);
+    font-size: var(--step-4);
+    line-height: 1;
+    color: var(--navy);
+  }
+
+  .stats__label { font-weight: 600; }
+  .stats__note { font-size: var(--step--1); color: var(--ink); }
+</style>

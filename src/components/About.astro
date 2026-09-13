@@ -1,0 +1,56 @@
+---
+import { about } from "../data/site";
+---
+
+<section class="section section--cream" id="about">
+  <div class="wrap about">
+    <div class="about__story">
+      <span class="eyebrow">{about.eyebrow}</span>
+      <h2>{about.heading}</h2>
+      {about.body.map((para) => <p>{para}</p>)}
+    </div>
+
+    <aside class="about__facts" aria-label="Trust details">
+      <dl>
+        {about.facts.map((fact) => (
+          <div class="fact">
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </aside>
+  </div>
+</section>
+
+<style>
+  .about { display: grid; gap: clamp(2rem, 5vw, 3.5rem); }
+
+  .about__facts {
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: var(--radius);
+    padding: clamp(1.5rem, 4vw, 2rem);
+    align-self: start;
+    box-shadow: var(--shadow);
+  }
+
+  dl { margin: 0; display: grid; gap: 1.2rem; }
+
+  .fact + .fact { border-top: 1px solid rgba(232, 213, 163, 0.2); padding-top: 1.2rem; }
+
+  dt {
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 0.3rem;
+  }
+
+  dd { margin: 0; font-family: var(--serif); font-size: var(--step-1); }
+
+  @media (min-width: 56rem) {
+    .about { grid-template-columns: minmax(0, 1.7fr) minmax(16rem, 1fr); align-items: start; }
+  }
+</style>

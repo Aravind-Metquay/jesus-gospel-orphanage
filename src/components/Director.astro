@@ -1,0 +1,102 @@
+---
+import { Image } from "astro:assets";
+import { director } from "../data/site";
+
+/* Portrait goes at src/assets/director.jpg */
+const found = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/director.{jpg,jpeg,png,webp,avif}",
+  { eager: true }
+);
+const portrait = Object.values(found)[0]?.default;
+---
+
+<section class="section section--tint" id="director">
+  <div class="wrap director">
+    <figure class="director__portrait">
+      {
+        portrait ? (
+          <Image
+            src={portrait}
+            alt={director.photoAlt}
+            widths={[320, 520, 760]}
+            sizes="(min-width: 56rem) 22rem, 60vw"
+          />
+        ) : (
+          <div class="portrait-empty">
+            <span>Director's photo<br />src/assets/director.jpg</span>
+          </div>
+        )
+      }
+    </figure>
+
+    <div class="director__words">
+      <span class="eyebrow">{director.eyebrow}</span>
+      <blockquote>
+        {director.message.map((line) => <p>{line}</p>)}
+      </blockquote>
+      <p class="director__sig">
+        <strong>{director.name}</strong>
+        <span>{director.title}</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .director { display: grid; gap: clamp(1.75rem, 5vw, 3.5rem); align-items: start; }
+
+  .director__portrait { margin: 0; max-width: 22rem; }
+
+  .director__portrait :global(img) {
+    width: 100%;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    /* A portrait crop, whatever the source aspect ratio turns out to be. */
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+
+  .portrait-empty {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    border: 2px dashed rgba(10, 30, 59, 0.25);
+    border-radius: var(--radius);
+    color: var(--ink);
+    font-size: var(--step--1);
+    text-align: center;
+    line-height: 1.6;
+  }
+
+  blockquote {
+    margin: 0 0 1.75rem;
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    line-height: 1.6;
+    color: var(--navy);
+    border-left: 3px solid var(--gold);
+    padding-left: clamp(1rem, 3vw, 1.75rem);
+  }
+
+  .director__sig {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding-left: clamp(1rem, 3vw, 1.75rem);
+    margin: 0;
+  }
+
+  .director__sig strong { font-family: var(--serif); font-size: var(--step-1); }
+
+  .director__sig span {
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold-ink);
+    font-weight: 600;
+  }
+
+  @media (min-width: 56rem) {
+    .director { grid-template-columns: 22rem minmax(0, 1fr); }
+  }
+</style>

@@ -1,0 +1,51 @@
+---
+import { getInvolved } from "../data/site";
+---
+
+<section class="section section--navy" id="get-involved">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow">{getInvolved.eyebrow}</span>
+      <h2>{getInvolved.heading}</h2>
+      <p>{getInvolved.sub}</p>
+    </div>
+
+    <ul class="doors">
+      {getInvolved.doors.map((door) => (
+        <li class="door">
+          <h3>{door.title}</h3>
+          <p>{door.body}</p>
+          <a class={`btn ${door.primary ? "btn--gold" : "btn--onnavy"}`} href={door.href}>
+            {door.cta}
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .doors {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.75rem);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  .door {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: rgba(250, 248, 244, 0.05);
+    border: 1px solid rgba(232, 213, 163, 0.22);
+    border-radius: var(--radius);
+    padding: clamp(1.5rem, 3vw, 2rem);
+  }
+
+  .door h3 { margin: 0; }
+  .door p { color: var(--cream); margin: 0; flex: 1; }
+  .door .btn { margin-top: 0.5rem; }
+</style>

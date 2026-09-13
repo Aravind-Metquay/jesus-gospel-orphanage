@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <rect width="1200" height="630" fill="#0A1E3B"/>
+  <rect x="0" y="614" width="1200" height="16" fill="#B8862A"/>
+  <circle cx="150" cy="150" r="58" fill="none" stroke="#D4A73E" stroke-width="3"/>
+  <path d="M150 118v64M132 140h36" stroke="#D4A73E" stroke-width="5" stroke-linecap="round"/>
+  <text x="96" y="330" fill="#FAF8F4" font-family="Georgia, serif" font-size="68" font-weight="600">Jesus Gospel &amp; Karunya</text>
+  <text x="96" y="410" fill="#D4A73E" font-family="Georgia, serif" font-size="52">Orphanage Trust</text>
+  <text x="96" y="490" fill="#E8D5A3" font-family="Helvetica, Arial, sans-serif" font-size="30" letter-spacing="2">Reg. No. 397/07</text>
+</svg>

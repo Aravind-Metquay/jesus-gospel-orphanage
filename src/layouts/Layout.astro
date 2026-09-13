@@ -1,0 +1,63 @@
+---
+import "../styles/global.css";
+import { org, contact, isPlaceholder } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${org.name} — a home for children and elders`,
+  description = `${org.name} (Reg. No. ${org.regNo}) cares for children and elders under one roof. Donate, sponsor a child, or come and visit.`,
+} = Astro.props;
+
+/* Structured data helps the trust show up properly when someone searches for it.
+   Fields that are still placeholders are left out rather than published wrong. */
+const schema: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "NGO",
+  name: org.name,
+  description,
+  identifier: `Reg. No. ${org.regNo}`,
+};
+if (!isPlaceholder(contact.email)) schema.email = contact.email;
+if (!isPlaceholder(contact.phone)) schema.telephone = contact.phone;
+const streetLines = contact.address.slice(1).filter((l) => !isPlaceholder(l));
+if (streetLines.length) {
+  schema.address = { "@type": "PostalAddress", streetAddress: streetLines.join(", ") };
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0A1E3B" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content="/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Lora:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    />
+
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(schema)} />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <slot />
+  </body>
+</html>

@@ -1,0 +1,115 @@
+---
+import { contact, org, isPlaceholder } from "../data/site";
+
+/* Don't turn a bracketed placeholder into a dead tel:/mailto: link. */
+const phoneReady = !isPlaceholder(contact.phone);
+const emailReady = !isPlaceholder(contact.email);
+---
+
+<section class="section section--tint" id="contact">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow">{contact.eyebrow}</span>
+      <h2>{contact.heading}</h2>
+      <p>{contact.sub}</p>
+    </div>
+
+    <div class="contact">
+      <div class="details">
+        <div class="block">
+          <h3>Visit</h3>
+          <address>
+            {contact.address.map((line) => <span>{line}</span>)}
+          </address>
+          {contact.mapLink && (
+            <a class="btn btn--outline btn--sm" href={contact.mapLink} target="_blank" rel="noopener">
+              Open in Maps
+            </a>
+          )}
+        </div>
+
+        <div class="block">
+          <h3>Call</h3>
+          <p>
+            {phoneReady ? <a href={contact.phoneHref}>{contact.phone}</a> : contact.phone}
+          </p>
+        </div>
+
+        <div class="block">
+          <h3>Email</h3>
+          <p>
+            {emailReady ? <a href={`mailto:${contact.email}`}>{contact.email}</a> : contact.email}
+          </p>
+        </div>
+
+        <div class="block">
+          <h3>For your records</h3>
+          <p>
+            {org.name}<br />
+            Registered public charitable trust, Reg. No. {org.regNo}
+          </p>
+        </div>
+      </div>
+
+      <div class="map">
+        {
+          contact.mapEmbedSrc ? (
+            <iframe
+              src={contact.mapEmbedSrc}
+              title={`Map showing the location of ${org.name}`}
+              loading="lazy"
+              referrerpolicy="no-referrer-when-downgrade"
+            />
+          ) : (
+            <div class="map--empty">
+              <span>
+                Map goes here.<br />
+                Paste the Google Maps embed URL into <code>contact.mapEmbedSrc</code>.
+              </span>
+            </div>
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact { display: grid; gap: clamp(1.75rem, 4vw, 3rem); align-items: start; }
+
+  .details { display: grid; gap: 1.75rem; grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); }
+
+  .block h3 { font-size: var(--step-0); color: var(--gold-ink); margin-bottom: 0.4rem; }
+
+  address { font-style: normal; display: grid; gap: 0.1rem; margin-bottom: 0.9rem; }
+
+  .block p { margin: 0; }
+  .block a { color: var(--navy); text-decoration-color: var(--gold); text-underline-offset: 3px; }
+
+  .map, .map--empty, .map iframe {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    border: 0;
+    border-radius: var(--radius);
+  }
+
+  .map { overflow: hidden; box-shadow: var(--shadow); }
+
+  .map--empty {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 1rem;
+    background: var(--cream);
+    border: 2px dashed rgba(10, 30, 59, 0.22);
+    color: var(--ink);
+    font-size: var(--step--1);
+    line-height: 1.7;
+    box-shadow: none;
+  }
+
+  @media (min-width: 56rem) {
+    .contact { grid-template-columns: minmax(0, 1.2fr) minmax(18rem, 1fr); }
+    .map, .map--empty, .map iframe { aspect-ratio: 1 / 1; }
+  }
+</style>

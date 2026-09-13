@@ -1,0 +1,58 @@
+---
+/* Line icons for the five programs named on the logo. Gold on navy, one weight. */
+interface Props { name: string }
+const { name } = Astro.props;
+---
+
+<svg
+  class="picon"
+  viewBox="0 0 32 32"
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.6"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  aria-hidden="true"
+  focusable="false"
+>
+  {name === "prayer" && (
+    <>
+      <path d="M16 28c-2.6-2-6-4.6-6-8.4V9.2c0-1 .8-1.8 1.8-1.8s1.8.8 1.8 1.8v5" />
+      <path d="M16 28c2.6-2 6-4.6 6-8.4V9.2c0-1-.8-1.8-1.8-1.8s-1.8.8-1.8 1.8v5" />
+      <path d="M16 14V5" /><path d="M12.6 8.4h6.8" />
+    </>
+  )}
+  {name === "elder" && (
+    <>
+      <circle cx="13" cy="7.5" r="3.5" />
+      <path d="M13 11.5c-3 0-5 2-5 5v11" /><path d="M13 27.5v-8" />
+      <path d="M18 16.5c0-2.6-1.6-4.4-4-4.9" />
+      <path d="M23 12v15.5" /><path d="M23 12a2 2 0 1 1 0-.1" />
+    </>
+  )}
+  {name === "children" && (
+    <>
+      <circle cx="10.5" cy="9" r="3.2" /><circle cx="21.5" cy="9" r="3.2" />
+      <path d="M5 27v-7a5.5 5.5 0 0 1 11 0v7" />
+      <path d="M16 27v-7a5.5 5.5 0 0 1 11 0v7" />
+    </>
+  )}
+  {name === "education" && (
+    <>
+      <path d="M16 5 3.5 11 16 17l12.5-6L16 5Z" />
+      <path d="M8 14v7c0 2.2 3.6 4 8 4s8-1.8 8-4v-7" />
+      <path d="M28.5 11v7" />
+    </>
+  )}
+  {name === "community" && (
+    <>
+      <circle cx="16" cy="16" r="11.5" />
+      <path d="M16 4.5c3 3.2 4.6 7.2 4.6 11.5S19 24.3 16 27.5c-3-3.2-4.6-7.2-4.6-11.5S13 7.7 16 4.5Z" />
+      <path d="M4.9 12.5h22.2M4.9 19.5h22.2" />
+    </>
+  )}
+</svg>
+
+<style>
+  .picon { width: 2rem; height: 2rem; color: var(--gold); flex: none; }
+</style>
