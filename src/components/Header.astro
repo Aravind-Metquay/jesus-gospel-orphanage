@@ -1,0 +1,177 @@
+---
+import Logo from "./Logo.astro";
+import { org, nav } from "../data/site";
+---
+
+<header class="site-header" id="top">
+  <div class="wrap bar">
+    <a class="brand" href="#top">
+      <Logo size={46} />
+      <span class="brand__text">
+        <span class="brand__name">{org.shortName}</span>
+        <span class="brand__sub">Orphanage Trust &middot; Reg. No. {org.regNo}</span>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Main">
+      <ul>
+        {nav.map((item) => (
+          <li><a href={item.href}>{item.label}</a></li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="actions">
+      <!-- Donate stays visible at every width, including on a phone. -->
+      <a class="btn btn--gold btn--sm" href="#donate">Donate</a>
+      <button
+        class="menu-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="mobile-nav"
+      >
+        <span class="visually-hidden">Menu</span>
+        <span class="menu-toggle__bars" aria-hidden="true"><i></i><i></i><i></i></span>
+      </button>
+    </div>
+  </div>
+
+  <nav class="mobile-nav" id="mobile-nav" aria-label="Main, mobile" hidden>
+    <ul class="wrap">
+      {nav.map((item) => (
+        <li><a href={item.href}>{item.label}</a></li>
+      ))}
+      <li><a href="#donate">Donate</a></li>
+    </ul>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--navy);
+    color: var(--cream);
+    border-bottom: 2px solid var(--gold-deep);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.5rem;
+    padding-block: 0.6rem;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    margin-right: auto;
+  }
+
+  .brand__text { display: flex; flex-direction: column; line-height: 1.25; }
+
+  .brand__name {
+    font-family: var(--serif);
+    font-weight: 600;
+    font-size: clamp(0.98rem, 2.4vw, 1.2rem);
+    color: var(--cream);
+  }
+
+  .brand__sub {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .nav { display: none; }
+
+  .nav ul {
+    display: flex;
+    gap: clamp(0.75rem, 2vw, 1.6rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav a {
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--cream);
+    padding: 0.4rem 0;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .nav a:hover { color: var(--gold); border-bottom-color: var(--gold); }
+
+  .actions { display: flex; align-items: center; gap: 0.6rem; }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    background: transparent;
+    border: 1px solid rgba(250, 248, 244, 0.35);
+    border-radius: var(--radius);
+    color: var(--cream);
+    cursor: pointer;
+  }
+
+  .menu-toggle__bars { display: grid; gap: 4px; }
+  .menu-toggle__bars i { display: block; width: 18px; height: 2px; background: currentColor; }
+
+  .mobile-nav { background: var(--navy-700); border-top: 1px solid rgba(250, 248, 244, 0.12); }
+
+  .mobile-nav ul { list-style: none; margin: 0; padding-block: 0.5rem; }
+
+  .mobile-nav a {
+    display: block;
+    padding: 0.85rem 0;
+    text-decoration: none;
+    color: var(--cream);
+    font-weight: 500;
+    border-bottom: 1px solid rgba(250, 248, 244, 0.1);
+  }
+  .mobile-nav li:last-child a { border-bottom: 0; color: var(--gold); }
+
+  @media (min-width: 62rem) {
+    .nav { display: block; }
+    .menu-toggle { display: none; }
+    .mobile-nav { display: none !important; }
+  }
+</style>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>(".menu-toggle");
+  const panel = document.getElementById("mobile-nav");
+
+  if (toggle && panel) {
+    const setOpen = (open: boolean) => {
+      panel.hidden = !open;
+      toggle.setAttribute("aria-expanded", String(open));
+    };
+
+    toggle.addEventListener("click", () => {
+      // `hidden` can also be the string "until-found", so coerce before toggling.
+      setOpen(Boolean(panel.hidden));
+    });
+
+    // Tapping a link should close the menu, not leave it covering the section.
+    panel.addEventListener("click", (event) => {
+      if ((event.target as HTMLElement).closest("a")) setOpen(false);
+    });
+
+    // Reset state if the viewport grows past the breakpoint while the menu is open.
+    window.matchMedia("(min-width: 62rem)").addEventListener("change", (event) => {
+      if (event.matches) setOpen(false);
+    });
+  }
+</script>

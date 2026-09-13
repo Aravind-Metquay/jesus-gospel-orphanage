@@ -1,0 +1,176 @@
+---
+/**
+ * Development-only. Walks the content file looking for [bracketed] placeholders
+ * and missing image files, then lists what's still outstanding in the corner of
+ * the screen. Guarded by import.meta.env.DEV, so it is stripped from the
+ * production build and can never reach a visitor.
+ */
+import * as site from "../data/site";
+
+const isDev = import.meta.env.DEV;
+
+type Item = { where: string; what: string };
+const missing: Item[] = [];
+
+/* Walk every string in the exported content and flag [bracketed] values. */
+const walk = (value: unknown, path: string) => {
+  if (typeof value === "string") {
+    if (/\[.+\]/.test(value)) missing.push({ where: path, what: value });
+    return;
+  }
+  if (Array.isArray(value)) {
+    value.forEach((entry, i) => walk(entry, `${path}[${i}]`));
+    return;
+  }
+  if (value && typeof value === "object") {
+    for (const [key, entry] of Object.entries(value)) walk(entry, path ? `${path}.${key}` : key);
+  }
+};
+
+for (const [key, value] of Object.entries(site)) {
+  if (typeof value === "function") continue;
+  walk(value, key);
+}
+
+/* Assets that the page degrades gracefully without, but shouldn't launch without. */
+const assets = import.meta.glob("../assets/**/*.{jpg,jpeg,png,webp,avif,svg}", { eager: true });
+const assetNames = new Set(
+  Object.keys(assets).map((p) => p.split("/").pop()!.replace(/\.[^.]+$/, ""))
+);
+
+const needed: Item[] = [
+  { where: "src/assets/logo.*", what: "The trust's actual logo file" },
+  { where: "src/assets/hero.*", what: "Hero photograph" },
+  { where: "src/assets/director.*", what: "Director's portrait" },
+].filter((a) => !assetNames.has(a.where.split("/").pop()!.replace(".*", "")));
+
+const photosMissing = site.gallery.groups
+  .flatMap((g) => g.photos)
+  .filter((p) => !assetNames.has(p.file));
+
+if (photosMissing.length) {
+  needed.push({
+    where: "src/assets/gallery/",
+    what: `${photosMissing.length} of 14 photographs: ${photosMissing.map((p) => p.file).join(", ")}`,
+  });
+}
+
+const sectionsHidden = [
+  site.impact.stats.filter((s) => s.value?.trim()).length === 0 && "Impact (no verified numbers yet)",
+  site.stories.items.filter((s) => s.quote?.trim()).length === 0 && "Stories (no quotes yet)",
+].filter(Boolean) as string[];
+
+const total = missing.length + needed.length;
+---
+
+{
+  isDev && total > 0 && (
+    <details class="checklist">
+      <summary>
+        Content checklist &mdash; <strong>{total}</strong> outstanding
+        <span>dev only</span>
+      </summary>
+
+      <div class="checklist__body">
+        {needed.length > 0 && (
+          <section>
+            <h4>Files to add</h4>
+            <ul>
+              {needed.map((item) => (
+                <li>
+                  <code>{item.where}</code>
+                  <span>{item.what}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {missing.length > 0 && (
+          <section>
+            <h4>Facts to fill in &mdash; src/data/site.ts</h4>
+            <ul>
+              {missing.map((item) => (
+                <li>
+                  <code>{item.where}</code>
+                  <span>{item.what}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {sectionsHidden.length > 0 && (
+          <section>
+            <h4>Sections currently hidden</h4>
+            <ul>
+              {sectionsHidden.map((item) => (
+                <li><span>{item}</span></li>
+              ))}
+            </ul>
+          </section>
+        )}
+      </div>
+    </details>
+  )
+}
+
+<style>
+  .checklist {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 500;
+    width: min(26rem, calc(100vw - 2rem));
+    background: #111a28;
+    color: #e6ecf5;
+    border: 1px solid #d4a73e;
+    border-radius: 10px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.74rem;
+    line-height: 1.5;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  }
+
+  summary {
+    cursor: pointer;
+    padding: 0.7rem 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    list-style: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary strong { color: #d4a73e; }
+
+  summary span {
+    margin-left: auto;
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0.55;
+  }
+
+  .checklist__body {
+    max-height: 50vh;
+    overflow-y: auto;
+    padding: 0 0.9rem 0.9rem;
+    border-top: 1px solid rgba(212, 167, 62, 0.3);
+  }
+
+  h4 {
+    font-family: inherit;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #d4a73e;
+    margin: 0.9rem 0 0.4rem;
+  }
+
+  ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.5rem; }
+
+  li { display: grid; gap: 0.1rem; }
+
+  code { color: #8fb4e8; overflow-wrap: anywhere; }
+  li span { opacity: 0.78; overflow-wrap: anywhere; }
+</style>

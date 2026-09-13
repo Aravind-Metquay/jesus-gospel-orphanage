@@ -1,0 +1,55 @@
+---
+import ProgramIcon from "./ProgramIcon.astro";
+import { programs } from "../data/site";
+---
+
+<section class="section section--navy" id="programs">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow">{programs.eyebrow}</span>
+      <h2>{programs.heading}</h2>
+      <p>{programs.sub}</p>
+    </div>
+
+    <ul class="grid">
+      {programs.items.map((item) => (
+        <li class="card">
+          <ProgramIcon name={item.icon} />
+          <h3>{item.title}</h3>
+          <p>{item.body}</p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  .grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(1rem, 2.5vw, 1.5rem);
+    /* Fixed counts rather than auto-fit: five cards fall into a tidy 3 + 2
+       at desktop width instead of a lopsided 4 + 1. */
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 40rem) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (min-width: 62rem) {
+    .grid { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .card {
+    background: rgba(250, 248, 244, 0.05);
+    border: 1px solid rgba(232, 213, 163, 0.22);
+    border-radius: var(--radius);
+    padding: clamp(1.4rem, 3vw, 1.8rem);
+  }
+
+  .card h3 { margin: 0.9rem 0 0.5rem; color: var(--gold); }
+  .card p { color: var(--cream); font-size: 0.97rem; margin: 0; }
+</style>

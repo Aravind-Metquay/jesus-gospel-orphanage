@@ -1,0 +1,278 @@
+---
+import { Image, getImage } from "astro:assets";
+import { gallery } from "../data/site";
+
+/**
+ * Real photos go in src/assets/gallery/ named exactly as listed in site.ts
+ * (daily-01.jpg, elder-03.jpg …). Astro then compresses each one and emits
+ * phone-sized versions, which is what keeps this page quick on mobile data.
+ * Slots without a file show a labelled placeholder so nothing silently vanishes.
+ */
+const files = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/gallery/*.{jpg,jpeg,png,webp,avif}",
+  { eager: true }
+);
+
+const byName = new Map<string, ImageMetadata>();
+for (const [path, mod] of Object.entries(files)) {
+  const name = path.split("/").pop()!.replace(/\.[^.]+$/, "");
+  byName.set(name, mod.default);
+}
+
+/* The lightbox needs a bigger version than the thumbnail, but pointing it at the
+   untouched original means a visitor on mobile data downloads a multi-megabyte
+   camera file just to look at one picture. Generate a capped, compressed copy
+   instead — and never upscale a photo that is already smaller than the cap. */
+const groups = await Promise.all(
+  gallery.groups.map(async (group) => ({
+    ...group,
+    photos: await Promise.all(
+      group.photos.map(async (photo) => {
+        const image = byName.get(photo.file);
+        const large = image
+          ? await getImage({
+              src: image,
+              width: Math.min(1600, image.width),
+              format: "webp",
+              quality: 80,
+            })
+          : undefined;
+        return { ...photo, image, large };
+      })
+    ),
+  }))
+);
+const total = groups.reduce((n, g) => n + g.photos.length, 0);
+---
+
+<section class="section section--cream" id="gallery">
+  <div class="wrap">
+    <div class="section__head">
+      <span class="eyebrow">{gallery.eyebrow}</span>
+      <h2>{gallery.heading}</h2>
+      <p>{gallery.sub}</p>
+    </div>
+
+    {
+      groups.map((group) => (
+        <div class="group" id={`gallery-${group.id}`}>
+          <div class="group__head">
+            <h3>{group.title}</h3>
+            <p>{group.blurb}</p>
+          </div>
+
+          <ul class="tiles">
+            {group.photos.map((photo) =>
+              photo.image ? (
+                <li>
+                  <button
+                    class="tile"
+                    type="button"
+                    data-full={photo.large!.src}
+                    data-caption={photo.alt}
+                    aria-label={`Open larger: ${photo.alt}`}
+                  >
+                    <Image
+                      src={photo.image}
+                      alt={photo.alt}
+                      widths={[300, 600, 900]}
+                      sizes="(min-width: 62rem) 20rem, (min-width: 40rem) 30vw, 45vw"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </button>
+                </li>
+              ) : (
+                <li>
+                  <div class="tile tile--empty">
+                    <span>{photo.file}</span>
+                  </div>
+                </li>
+              )
+            )}
+          </ul>
+        </div>
+      ))
+    }
+
+    <p class="count">{total} photos</p>
+  </div>
+</section>
+
+<!-- Lightbox. Built on <dialog> so Escape, focus trapping and the backdrop
+     come from the browser instead of a JavaScript library. -->
+<dialog class="lightbox" id="lightbox" aria-label="Photo viewer">
+  <button class="lightbox__close" type="button" aria-label="Close photo">&times;</button>
+  <img id="lightbox-img" src="" alt="" />
+  <p class="lightbox__caption" id="lightbox-caption"></p>
+  <div class="lightbox__nav">
+    <button type="button" data-step="-1" aria-label="Previous photo">&#8592;</button>
+    <span id="lightbox-count" aria-live="polite"></span>
+    <button type="button" data-step="1" aria-label="Next photo">&#8594;</button>
+  </div>
+</dialog>
+
+<style>
+  .group + .group { margin-top: clamp(2.5rem, 6vw, 4rem); }
+
+  .group__head { margin-bottom: 1.25rem; }
+  .group__head h3 { margin-bottom: 0.2rem; }
+  .group__head p { color: var(--ink); margin: 0; }
+
+  .tiles {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: clamp(0.6rem, 1.6vw, 1rem);
+    /* Two across even on the narrowest phone — a single column would turn
+       14 photos into an endless scroll, which is how most people read this. */
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 40rem) {
+    .tiles { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  @media (min-width: 62rem) {
+    .tiles { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .tile {
+    display: block;
+    width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--cream-200);
+    cursor: pointer;
+    aspect-ratio: 4 / 3;
+  }
+
+  .tile :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.35s ease;
+  }
+  .tile:hover :global(img) { transform: scale(1.045); }
+
+  .tile--empty {
+    display: grid;
+    place-items: center;
+    cursor: default;
+    border: 2px dashed rgba(10, 30, 59, 0.22);
+    color: var(--ink);
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-align: center;
+    padding: 0.5rem;
+  }
+
+  .count {
+    margin-top: 2rem;
+    font-size: var(--step--1);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+  }
+
+  .lightbox {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    max-width: min(96vw, 68rem);
+    max-height: 94vh;
+    color: var(--cream);
+    overflow: visible;
+  }
+  .lightbox::backdrop { background: rgba(10, 30, 59, 0.93); }
+
+  .lightbox img {
+    width: 100%;
+    max-height: 78vh;
+    object-fit: contain;
+    border-radius: var(--radius);
+  }
+
+  .lightbox__caption {
+    margin: 0.85rem 0 0;
+    text-align: center;
+    font-size: var(--step--1);
+    color: var(--gold-soft);
+    max-width: none;
+  }
+
+  .lightbox__nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    color: var(--gold-soft);
+  }
+
+  .lightbox__nav button,
+  .lightbox__close {
+    background: rgba(250, 248, 244, 0.12);
+    border: 1px solid rgba(250, 248, 244, 0.35);
+    color: var(--cream);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-size: 1.1rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+  }
+  .lightbox__nav button:hover, .lightbox__close:hover { background: rgba(250, 248, 244, 0.24); }
+
+  .lightbox__close { position: absolute; top: -3.4rem; right: 0; font-size: 1.5rem; }
+</style>
+
+<script>
+  const dialog = document.querySelector<HTMLDialogElement>("#lightbox");
+  const img = document.querySelector<HTMLImageElement>("#lightbox-img");
+  const caption = document.querySelector<HTMLParagraphElement>("#lightbox-caption");
+  const counter = document.querySelector<HTMLElement>("#lightbox-count");
+  const tiles = Array.from(document.querySelectorAll<HTMLButtonElement>(".tile[data-full]"));
+
+  if (dialog && img && caption && counter && tiles.length) {
+    let index = 0;
+
+    const show = (next: number) => {
+      index = (next + tiles.length) % tiles.length;
+      const tile = tiles[index];
+      img.src = tile.dataset.full ?? "";
+      img.alt = tile.dataset.caption ?? "";
+      caption.textContent = tile.dataset.caption ?? "";
+      counter.textContent = `${index + 1} / ${tiles.length}`;
+    };
+
+    tiles.forEach((tile, i) =>
+      tile.addEventListener("click", () => {
+        show(i);
+        dialog.showModal();
+      })
+    );
+
+    dialog.querySelectorAll<HTMLButtonElement>("[data-step]").forEach((button) =>
+      button.addEventListener("click", () => show(index + Number(button.dataset.step)))
+    );
+
+    dialog.querySelector(".lightbox__close")?.addEventListener("click", () => dialog.close());
+
+    // Clicking the backdrop closes it; clicking the photo itself must not.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) dialog.close();
+    });
+
+    dialog.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowRight") show(index + 1);
+      if (event.key === "ArrowLeft") show(index - 1);
+    });
+
+    // Returning focus to the tile the visitor opened keeps keyboard order sane.
+    dialog.addEventListener("close", () => tiles[index]?.focus());
+  }
+</script>

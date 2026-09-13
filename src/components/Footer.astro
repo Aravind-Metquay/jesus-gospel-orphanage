@@ -1,0 +1,91 @@
+---
+import Logo from "./Logo.astro";
+import { org, nav, social } from "../data/site";
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <Logo size={44} onNavy />
+        <div>
+          <p class="brand__name">{org.name}</p>
+          <p class="brand__reg">Registered public charitable trust &middot; Reg. No. {org.regNo}</p>
+        </div>
+      </div>
+
+      <nav aria-label="Footer">
+        <ul class="links">
+          {nav.map((item) => (
+            <li><a href={item.href}>{item.label}</a></li>
+          ))}
+          <li><a href="#donate">Donate</a></li>
+        </ul>
+      </nav>
+
+      {social.length > 0 && (
+        <ul class="social">
+          {social.map((item) => (
+            <li>
+              <a href={item.href} target="_blank" rel="noopener">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
+    <p class="copyright">
+      &copy; {year} {org.name}. Reg. No. {org.regNo}. All photographs published with consent.
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--navy);
+    color: var(--cream);
+    padding-block: clamp(2.5rem, 6vw, 4rem) 2rem;
+    border-top: 2px solid var(--gold-deep);
+  }
+
+  .top {
+    display: grid;
+    gap: 2rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid rgba(232, 213, 163, 0.2);
+  }
+
+  .brand { display: flex; gap: 0.9rem; align-items: center; }
+  .brand__name { font-family: var(--serif); font-size: var(--step-1); margin: 0; }
+  .brand__reg { font-size: var(--step--1); color: var(--gold); margin: 0.15rem 0 0; }
+
+  .links, .social {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 1.4rem;
+  }
+
+  .links a, .social a {
+    color: var(--cream);
+    text-decoration: none;
+    font-size: 0.95rem;
+  }
+  .links a:hover, .social a:hover { color: var(--gold); text-decoration: underline; }
+
+  .social a { color: var(--gold); }
+
+  .copyright {
+    margin: 1.5rem 0 0;
+    font-size: var(--step--1);
+    color: rgba(250, 248, 244, 0.7);
+    max-width: none;
+  }
+
+  @media (min-width: 56rem) {
+    .top { grid-template-columns: minmax(0, 1.4fr) auto auto; align-items: center; }
+  }
+</style>

@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "jesus-gospel-karunya-orphanage-trust",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,9 +12,14 @@
     "astro": "astro"
   },
   "dependencies": {
-    "astro": "^7.3.2"
+    "astro": "^7.3.2",
+    "sharp": "^0.35.4"
   },
   "allowScripts": {
     "esbuild": true
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "typescript": "^6.0.3"
   }
 }

@@ -1,0 +1,48 @@
+---
+/**
+ * Uses the trust's real logo the moment someone drops it in as
+ * src/assets/logo.svg (or .png / .jpg). Until then it falls back to a plain
+ * navy-and-gold monogram so the header isn't empty — replace it, don't keep it.
+ */
+import { Image } from "astro:assets";
+import { org } from "../data/site";
+
+interface Props { size?: number; onNavy?: boolean }
+const { size = 52, onNavy = false } = Astro.props;
+
+const found = import.meta.glob<{ default: ImageMetadata }>(
+  "../assets/logo.{svg,png,jpg,jpeg,webp,avif}",
+  { eager: true }
+);
+const real = Object.values(found)[0]?.default;
+---
+
+{
+  real ? (
+    <Image src={real} alt={`${org.name} logo`} width={size} height={size} densities={[1, 2]} class="logo-img" />
+  ) : (
+    <svg
+      class="logo-mark"
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      role="img"
+      aria-label={`${org.name} logo`}
+    >
+      <circle cx="32" cy="32" r="31" fill={onNavy ? "#14304f" : "#0A1E3B"} />
+      <circle cx="32" cy="32" r="27.5" fill="none" stroke="#D4A73E" stroke-width="1.6" />
+      <path d="M32 17v30M23.5 26h17" stroke="#D4A73E" stroke-width="2.6" stroke-linecap="round" />
+      <path
+        d="M18 47c4.5-3.2 9.3-4.8 14-4.8S41.5 43.8 46 47"
+        fill="none"
+        stroke="#E8D5A3"
+        stroke-width="2"
+        stroke-linecap="round"
+      />
+    </svg>
+  )
+}
+
+<style>
+  .logo-img, .logo-mark { border-radius: 50%; flex: none; }
+</style>
