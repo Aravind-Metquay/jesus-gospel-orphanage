@@ -67,26 +67,44 @@ breaking the layout, so the site stays deployable while photos trickle in.
 
 Colours are sampled from the trust's logo, not invented:
 
-| Token         | Hex       | Used for                                  |
-| ------------- | --------- | ----------------------------------------- |
-| `--navy`      | `#0A1E3B` | Header, footer, dark sections, body text  |
-| `--gold`      | `#D4A73E` | Accents, icons, headings **on navy only** |
-| `--gold-deep` | `#B8862A` | Buttons                                   |
-| `--cream`     | `#FAF8F4` | Content backgrounds (not pure white)      |
+| Token         | Hex       | Used for                                       |
+| ------------- | --------- | ---------------------------------------------- |
+| `--navy`      | `#0A1E3B` | Header, footer, dark sections, body text       |
+| `--gold`      | `#D4A73E` | Accents, icons, headings **on navy only**      |
+| `--gold-deep` | `#B8862A` | **Button fill only** — never text              |
+| `--gold-ink`  | `#876413` | The only gold allowed as text on a light ground |
+| `--cream`     | `#FAF8F4` | Content backgrounds (not pure white)           |
+| `--cream-200` | `#F1ECE2` | Alternating tinted sections                    |
 
 Measured contrast ratios:
 
-| Combination                    | Ratio    |                                    |
-| ------------------------------ | -------- | ---------------------------------- |
-| Gold on white                  | 2.2 : 1  | ✗ never do this — it's unreadable  |
-| Gold on navy                   | 7.4 : 1  | ✓                                  |
-| Navy on cream                  | 15.7 : 1 | ✓                                  |
-| **Navy text on deep gold**     | 5.1 : 1  | ✓ this is the button combination   |
-| White text on deep gold        | 3.2 : 1  | ✗ fails AA — don't switch to white |
+| Combination                       | Ratio    |                                       |
+| --------------------------------- | -------- | ------------------------------------- |
+| Gold `#D4A73E` as text on cream   | 2.1 : 1  | ✗ never — at any size                 |
+| Deep gold `#B8862A` as text       | 3.1 : 1  | ✗ fails too — it is a **fill**, not ink |
+| Gold ink `#876413` on cream       | 5.1 : 1  | ✓ use this when gold must be text     |
+| Gold ink `#876413` on tint        | 4.6 : 1  | ✓                                     |
+| Gold on navy                      | 7.4 : 1  | ✓                                     |
+| Navy on cream                     | 15.7 : 1 | ✓                                     |
+| **Navy text on deep gold**        | 5.1 : 1  | ✓ this is the button combination      |
+| White text on deep gold           | 3.2 : 1  | ✗ fails AA — don't switch to white    |
 
-That last row is worth remembering: the gold buttons carry **navy** labels, not
-white. White looks tempting and fails accessibility standards at normal text
-sizes.
+Two of these are easy to get wrong:
+
+- **The gold buttons carry navy labels, not white.** White looks tempting and
+  measures 3.2:1, which fails at normal text sizes.
+- **The logo gold is a fill, not ink.** Any gold *text* on a light background
+  needs `--gold-ink`, which is the same hue (42°) darkened until it passes.
+  `pnpm run audit:contrast` fails the build if `--gold-deep` is used as a text
+  colour anywhere.
+
+The **focus ring** is a gold ring inside a navy halo. Gold alone disappears on
+the cream sections and navy alone disappears on the navy ones; the pair is
+visible on both.
+
+```sh
+pnpm run audit:contrast   # checks every pair in use, and the banned ones
+```
 
 Two typefaces only: **Lora** for headings, **Inter** for everything else.
 Adding a third for "personality" is what makes a site look homemade.
@@ -108,7 +126,10 @@ Impact · Gallery · Stories · Get involved · Donate · Contact · Footer.
 
 ## Accessibility & performance
 
-- Skip link, landmarks, and visible focus rings throughout.
+- Skip link, landmarks, and a focus ring that stays visible on both the light
+  and the navy sections.
+- Every text/background pair on the rendered page was checked against WCAG AA
+  in a real browser, at desktop and phone width, with the mobile menu open.
 - The gallery lightbox is a native `<dialog>` — Escape, focus trapping and the
   backdrop come from the browser rather than a JavaScript library. Arrow keys
   move between photos.

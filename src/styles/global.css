@@ -3,11 +3,18 @@
   Palette sampled from the trust's logo. Do not introduce new hues here —
   if something needs emphasis, use weight, size or space before reaching for colour.
 
-  Measured contrast (see README):
-    gold  on white  2.2:1  <- never do this
-    gold  on navy   7.4:1  ok
-    deep gold + navy text  5.1:1  ok  <- button combination
-    navy  on cream 15.7:1  ok
+  Measured contrast — every pair on this page is audited against WCAG AA
+  (see `pnpm run audit:contrast`):
+
+    gold      on white/cream   2.2:1  <- never. not as text, at any size.
+    gold-deep on cream         3.1:1  <- also never as text. it is a BUTTON
+                                          FILL only, never ink on a light ground.
+    gold-ink  on cream/tint    5.1 / 4.6:1  ok  <- the only gold allowed as
+                                                    text on a light background
+    gold      on navy          7.4:1  ok
+    navy text on gold-deep     5.1:1  ok  <- the button combination. white text
+                                              on that same gold is 3.2:1 and fails.
+    navy      on cream        15.7:1  ok
 */
 
 :root {
@@ -15,7 +22,11 @@
   --navy-700: #14304f;
   --navy-500: #22456b;
   --gold: #d4a73e;
+  /* Button fill only. As text on a light ground it measures 3.1:1 and fails. */
   --gold-deep: #b8862a;
+  /* Same hue as the logo gold (42°), darkened until it clears 4.5:1 on the
+     tinted sections. Use this whenever gold has to be *text* on a light ground. */
+  --gold-ink: #876413;
   --gold-soft: #e8d5a3;
   --cream: #faf8f4;
   --cream-200: #f1ece2;
@@ -90,8 +101,12 @@ a { color: inherit; }
 img { max-width: 100%; height: auto; display: block; }
 
 :focus-visible {
-  outline: 3px solid var(--gold-deep);
-  outline-offset: 3px;
+  outline: 3px solid var(--gold);
+  outline-offset: 2px;
+  /* The halo sits under and around the gold ring. On a light section the navy
+     is what you see (15.7:1); on a navy section the gold is (7.4:1). Either
+     way the indicator is never the invisible one. */
+  box-shadow: 0 0 0 6px rgba(10, 30, 59, 0.85);
   border-radius: 3px;
 }
 
@@ -126,7 +141,7 @@ img { max-width: 100%; height: auto; display: block; }
   font-weight: 600;
   letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--gold-deep);
+  color: var(--gold-ink);
   margin-bottom: 0.85rem;
 }
 .section--navy .eyebrow { color: var(--gold); }
@@ -174,7 +189,7 @@ img { max-width: 100%; height: auto; display: block; }
 .btn--outline {
   background: transparent;
   color: var(--navy);
-  border-color: rgba(10, 30, 59, 0.35);
+  border-color: rgba(10, 30, 59, 0.5); /* 3.1:1 against cream */
 }
 .btn--outline:hover { border-color: var(--navy); background: rgba(10, 30, 59, 0.04); }
 
