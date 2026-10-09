@@ -7,7 +7,7 @@ const rows = [
   { label: "Bank & branch", value: donate.bank.bank },
   { label: "IFSC", value: donate.bank.ifsc },
   { label: "UPI", value: donate.bank.upi },
-];
+].filter((row) => row.value.trim());
 ---
 
 <section class="section section--cream" id="donate">

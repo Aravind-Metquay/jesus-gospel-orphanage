@@ -54,6 +54,8 @@ const portrait = Object.values(found)[0]?.default;
     /* A portrait crop, whatever the source aspect ratio turns out to be. */
     aspect-ratio: 4 / 5;
     object-fit: cover;
+    /* Keep the face in frame when the crop trims the top or bottom. */
+    object-position: top;
   }
 
   .portrait-empty {

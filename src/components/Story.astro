@@ -1,0 +1,82 @@
+---
+import { story } from "../data/site";
+---
+
+<section class="section section--tint" id="story">
+  <div class="wrap story">
+    <div class="section__head">
+      <span class="eyebrow">{story.eyebrow}</span>
+      <h2>{story.heading}</h2>
+      <p>{story.sub}</p>
+    </div>
+
+    <div class="story__text">
+      {story.body.map((para) => <p>{para}</p>)}
+
+      <figure class="verse">
+        <blockquote><p>&ldquo;{story.verse.text}&rdquo;</p></blockquote>
+        <figcaption>{story.verse.ref}</figcaption>
+      </figure>
+
+      {story.body2.map((para) => <p>{para}</p>)}
+
+      <p class="story__sig">
+        <span>{story.signoff.closing}</span>
+        <strong>{story.signoff.name}</strong>
+        <span>{story.signoff.org}</span>
+      </p>
+
+      <div class="btn-row">
+        <a class="btn btn--gold" href="#donate">Help build the home</a>
+        <a class="btn btn--outline" href="#contact">Come and visit</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* One readable column — this is a letter, not a layout. */
+  .story { max-width: 46rem; }
+
+  .story__text p { font-size: var(--step-0); line-height: 1.75; }
+
+  .verse {
+    margin: 2rem 0;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: var(--navy);
+    color: var(--cream);
+    border-radius: var(--radius);
+    border-left: 4px solid var(--gold);
+    box-shadow: var(--shadow);
+  }
+
+  .verse blockquote { margin: 0; }
+
+  .verse blockquote p {
+    font-family: var(--serif);
+    font-size: var(--step-1);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .verse figcaption {
+    margin-top: 0.75rem;
+    font-size: var(--step--1);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .story__sig {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    margin: 2rem 0;
+    padding-left: clamp(1rem, 3vw, 1.75rem);
+    border-left: 3px solid var(--gold);
+  }
+
+  .story__sig strong { font-family: var(--serif); font-size: var(--step-1); color: var(--navy); }
+  .story__sig span { font-size: var(--step--1); color: var(--ink); }
+</style>
